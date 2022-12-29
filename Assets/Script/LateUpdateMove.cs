@@ -6,7 +6,7 @@ public class LateUpdateMove : MonoBehaviour
 {
     void LateUpdate()
     {
-        transform.Translate(0, 0, Time.deltaTime);
+        transform.Translate(0, 0, 10 * Time.deltaTime);
 
     }
 }
