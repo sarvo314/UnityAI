@@ -11,10 +11,12 @@ public class Shell : MonoBehaviour
     float gAccel;
     float speedZ;
     float speedY;
+    Rigidbody rb;
 
     void Start()
     {
 
+        rb = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -28,5 +30,6 @@ public class Shell : MonoBehaviour
         //speedZ += accelaration * Time.deltaTime;
 
         //transform.Translate(0, 0, accelaration);
+        this.transform.forward = rb.velocity;
     }
 }

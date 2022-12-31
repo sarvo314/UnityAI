@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Shoot : MonoBehaviour
 {
@@ -9,24 +10,33 @@ public class Shoot : MonoBehaviour
     public GameObject target;
     public GameObject parent;
 
+    bool canShoot = true;
+
     float turnSpeed = 5f;
 
     [SerializeField]
     [Range(5f, 50f)]
     float speed = 5f;
 
+    void CanShootAgain()
+    {
+        canShoot = true;
+    }
+
     void Fire()
     {
-        GameObject shell = Instantiate(shellPrefab, shellSpawnPos.transform.position, shellSpawnPos.transform.rotation);
-        shell.GetComponent<Rigidbody>().velocity = speed * this.transform.forward;
+        if (canShoot)
+        {
+            GameObject shell = Instantiate(shellPrefab, shellSpawnPos.transform.position, shellSpawnPos.transform.rotation);
+            shell.GetComponent<Rigidbody>().velocity = speed * this.transform.forward;
+
+            canShoot = false;
+            Invoke("CanShootAgain", 0.5f);
+        }
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Fire();
-        }
         Vector3 direction = (target.transform.position - parent.transform.position).normalized;
         //Quaternion lookRotation = Quaternion.LookRotation(new Vector3(0, 90, 0));
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
@@ -35,6 +45,10 @@ public class Shoot : MonoBehaviour
         //parent.transform.rotation = Quaternion.Slerp(parent.transform.rotation, lookRotation, Time.deltaTime * turnSpeed);
 
         float? angle = RotateTurret();
+        if (angle != null)
+        {
+            Fire();
+        }
     }
     float? RotateTurret()
     {
