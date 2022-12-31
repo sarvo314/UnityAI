@@ -1,22 +1,22 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Shoot : MonoBehaviour
 {
-    public GameObject shellPrefab;
-    public GameObject shellSpawnPos;
-    public GameObject target;
-    public GameObject parent;
-
+    public GameObject shellPrefab; // Add Shell game object in the Inspector.
+    public GameObject shellSpawnPos; // Add Cube game object in the Inspector.
+    public GameObject target; // Add Enemy game object in the Inspector.
+    public GameObject parent; // Add Tank game object in the Inspector.
+    float speed = 15;
+    float turnSpeed = 2;
     bool canShoot = true;
 
-    float turnSpeed = 5f;
-
-    [SerializeField]
-    [Range(5f, 50f)]
-    float speed = 5f;
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
 
     void CanShootAgain()
     {
@@ -28,36 +28,32 @@ public class Shoot : MonoBehaviour
         if (canShoot)
         {
             GameObject shell = Instantiate(shellPrefab, shellSpawnPos.transform.position, shellSpawnPos.transform.rotation);
-            shell.GetComponent<Rigidbody>().velocity = speed * this.transform.forward;
-
+            shell.GetComponent<Rigidbody>().velocity = speed * this.transform.forward; // Use 'forward' because it's the Z axis you want to shoot along.
             canShoot = false;
-            Invoke("CanShootAgain", 0.5f);
+            Invoke("CanShootAgain", 0.2f); // Increase value to slow down rate of fire, decrease value to speed up rate of fire.
         }
     }
 
-    private void Update()
+    // Update is called once per frame
+    void Update()
     {
         Vector3 direction = (target.transform.position - parent.transform.position).normalized;
-        //Quaternion lookRotation = Quaternion.LookRotation(new Vector3(0, 90, 0));
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
-        parent.transform.rotation = Quaternion.Slerp(parent.transform.rotation, lookRotation, Time.deltaTime * speed);
-
-        //parent.transform.rotation = Quaternion.Slerp(parent.transform.rotation, lookRotation, Time.deltaTime * turnSpeed);
+        parent.transform.rotation = Quaternion.Slerp(parent.transform.rotation, lookRotation, Time.deltaTime * turnSpeed);
 
         float? angle = RotateTurret();
-        if (angle != null)
-        {
-            Fire();
-        }
+
+        if(angle != null && Vector3.Angle(direction, parent.transform.forward) < 10) // When the angle is less than 10 degrees...
+            Fire(); // ...start firing.
     }
+
     float? RotateTurret()
     {
-        float? angle = CalculateAngle(true);
+        float? angle = CalculateAngle(false); // Set to false for upper range of angles, true for lower range.
 
-        if (angle != null)
+        if (angle != null) // If we did actually get an angle...
         {
-            Debug.Log("Working");
-            this.transform.localEulerAngles = new Vector3(360f - (float)angle, transform.localEulerAngles.y, 0);
+            this.transform.localEulerAngles = new Vector3(360f - (float)angle, 0f, 0f); // ... rotate the turret using EulerAngles because they allow you to set angles around x, y & z.
         }
         return angle;
     }
@@ -66,29 +62,25 @@ public class Shoot : MonoBehaviour
     {
         Vector3 targetDir = target.transform.position - this.transform.position;
         float y = targetDir.y;
-        targetDir.y = 0;
+        targetDir.y = 0f;
         float x = targetDir.magnitude;
         float gravity = 9.81f;
         float sSqr = speed * speed;
+        float underTheSqrRoot = (sSqr * sSqr) - gravity * (gravity * x * x + 2 * y * sSqr);
 
-        float underTheSquareRoot = (sSqr * sSqr) - gravity * (gravity * x * x + 2 * y * sSqr);
-
-        if (underTheSquareRoot >= 0)
+        if (underTheSqrRoot >= 0f)
         {
-            float root = Mathf.Sqrt(underTheSquareRoot);
+            float root = Mathf.Sqrt(underTheSqrRoot);
             float highAngle = sSqr + root;
             float lowAngle = sSqr - root;
 
-            Debug.Log("Working");
             if (low)
-                return Mathf.Atan2(lowAngle, gravity * x) * Mathf.Rad2Deg;
+                return (Mathf.Atan2(lowAngle, gravity * x) * Mathf.Rad2Deg);
             else
-                return Mathf.Atan2(highAngle, gravity * x) * Mathf.Rad2Deg;
+                return (Mathf.Atan2(highAngle, gravity * x) * Mathf.Rad2Deg);
 
         }
         else
             return null;
     }
-
 }
-
