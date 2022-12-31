@@ -10,6 +10,9 @@ public class Shoot : MonoBehaviour
     public GameObject parent;
 
     float turnSpeed = 5f;
+
+    [SerializeField]
+    [Range(5f, 50f)]
     float speed = 5f;
 
     void Fire()
@@ -25,18 +28,22 @@ public class Shoot : MonoBehaviour
             Fire();
         }
         Vector3 direction = (target.transform.position - parent.transform.position).normalized;
+        //Quaternion lookRotation = Quaternion.LookRotation(new Vector3(0, 90, 0));
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
-        parent.transform.rotation = Quaternion.Slerp(parent.transform.rotation, lookRotation, Time.deltaTime * turnSpeed);
+        parent.transform.rotation = Quaternion.Slerp(parent.transform.rotation, lookRotation, Time.deltaTime * speed);
+
+        //parent.transform.rotation = Quaternion.Slerp(parent.transform.rotation, lookRotation, Time.deltaTime * turnSpeed);
 
         float? angle = RotateTurret();
     }
     float? RotateTurret()
     {
-        float? angle = CalculateAngle(false);
+        float? angle = CalculateAngle(true);
 
         if (angle != null)
         {
-            this.transform.localEulerAngles = new Vector3((float)angle, 0, 0);
+            Debug.Log("Working");
+            this.transform.localEulerAngles = new Vector3(360f - (float)angle, transform.localEulerAngles.y, 0);
         }
         return angle;
     }
@@ -58,6 +65,7 @@ public class Shoot : MonoBehaviour
             float highAngle = sSqr + root;
             float lowAngle = sSqr - root;
 
+            Debug.Log("Working");
             if (low)
                 return Mathf.Atan2(lowAngle, gravity * x) * Mathf.Rad2Deg;
             else
