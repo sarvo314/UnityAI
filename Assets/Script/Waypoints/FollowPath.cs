@@ -30,7 +30,6 @@ public class FollowPath : MonoBehaviour
     {
         g.AStar(currentNode, wps[6]);
         currentWP = 0;
-
     }
     private void LateUpdate()
     {
@@ -52,10 +51,6 @@ public class FollowPath : MonoBehaviour
             this.transform.Translate(0, 0, speed * Time.deltaTime);
         }
 
-
-    }
-    void Update()
-    {
 
     }
 }
