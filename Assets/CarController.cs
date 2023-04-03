@@ -9,7 +9,7 @@ public class CarController : MonoBehaviour
     [SerializeField]
     Transform point;
     [SerializeField]
-    float normalizeValueHitDist = 20f;
+    float normalizeValueHitDist = 10f;
 
 
     [Range(-1f, 1f)]
@@ -58,14 +58,14 @@ public class CarController : MonoBehaviour
     void Update()
     {
         var dir = transform.TransformDirection(point.position);
-        Debug.DrawRay(Vector3.zero, dir * 100);
+        //Debug.DrawRay(Vector3.zero, dir * 100);
 
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.name == "Bounds")
+        if (collision.gameObject.CompareTag("Bounds") || collision.gameObject.CompareTag("Grass"))
             Reset();
-        Debug.Log("We collided");
+        //Debug.Log("We collided");
     }
 
     private void CalculateFitness()
@@ -87,6 +87,9 @@ public class CarController : MonoBehaviour
 
     }
 
+    float maxA = 0;
+    float maxB = 0;
+    float maxC = 0;
     private void InputSensors()
     {
         Vector3 leftDir = (transform.forward + transform.right);
@@ -99,21 +102,32 @@ public class CarController : MonoBehaviour
         if (Physics.Raycast(r, out hit))
         {
             aSensor = hit.distance / normalizeValueHitDist;
-            Debug.Log("A sensor " + aSensor);
+            if (aSensor > maxA)
+            {
+                maxA = aSensor;
+                Debug.Log("A sensor " + aSensor);
+
+            }
+            //Debug.DrawRay(r.origin, transform.position - hit.point);
+            Debug.DrawLine(r.origin, hit.point, Color.red);
         }
 
         r.direction = fwdDir;
         if (Physics.Raycast(r, out hit))
         {
             bSensor = hit.distance / normalizeValueHitDist;
-            Debug.Log("b sensor " + bSensor);
-
+            if (aSensor > maxB)
+                Debug.Log("B sensor " + bSensor);
+            Debug.DrawLine(r.origin, hit.point, Color.red);
         }
         r.direction = rightDir;
         if (Physics.Raycast(r, out hit))
         {
             cSensor = hit.distance / normalizeValueHitDist;
-            Debug.Log("C sensor " + cSensor);
+            if (aSensor > maxC)
+                Debug.Log("C sensor " + cSensor);
+
+            Debug.DrawLine(r.origin, hit.point, Color.red);
         }
 
 
